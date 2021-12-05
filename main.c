@@ -20,8 +20,8 @@ unsigned char not_collided(unsigned int particle_x, unsigned int particle_y, con
             if((particle_y == (grid_height - 1) && y > 0) || (particle_y == 0) && y < 0) { continue; }
 
             if(x == 0 && y == 0) { continue; }
-            if(particle_x + x == seed_x && particle_y + y == seed_y)               { return 0; }
-            else if(grid[(particle_x + x) + ((particle_y + y) * grid_width)] != 0) { return 0; }
+            if((particle_x + x == seed_x && particle_y + y == seed_y) ||
+            (grid[(particle_x + x) + ((particle_y + y) * grid_width)] != 0)) { return 0; }
         }
     }
 
