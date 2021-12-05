@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-///TODO: Should i make them smaller to save space?
 unsigned int grid_width, grid_height;
 unsigned int num_particles;
 unsigned int num_iterations;
@@ -20,7 +19,6 @@ unsigned char not_collided(unsigned int particle_x, unsigned int particle_y, con
             if((particle_x == (grid_width - 1 ) && x > 0) || (particle_x == 0) && x < 0) { continue; }
             if((particle_y == (grid_height - 1) && y > 0) || (particle_y == 0) && y < 0) { continue; }
 
-            ///TODO: Check grid bounds
             if(x == 0 && y == 0) { continue; }
             if(particle_x + x == seed_x && particle_y + y == seed_y)               { return 0; }
             else if(grid[(particle_x + x) + ((particle_y + y) * grid_width)] != 0) { return 0; }
@@ -60,32 +58,11 @@ int main(int argc, char *argv[]) {
     srand(time(0));
 
     //I'm creating the grid on the stack for better performance in general: is the stack always in cache? need to research
-    //Treating unsigned char as an 8 bit unsigned integer to save on space.
+    //Treating unsigned char as an 8 bit unsigned integer to save on space and assure better cache performance. (more elements in cache at the same time)
     for(int i = 0; i < grid_width * grid_height; i++)
     {
         grid[i] = 0;
     }
-
-    //Populate grid with particles
-    /*for(int i = 0; i < num_particles; i++)
-    {
-        unsigned int x = ranged_random(0, grid_width);
-        unsigned int y = ranged_random(0, grid_height);
-
-        particles[i].x_pos = x;
-        particles[i].y_pos = y;
-
-        grid[x + (y * grid_width)]++;
-    }*/
-
-    /*for(int y = 0; y < grid_height; y++)
-    {
-        for(int x = 0; x < grid_width; x++)
-        {
-            printf("%d", grid[x + (y * grid_width)]);
-        }
-        printf("\n");
-    }*/
 
     // Main Loop
     for(int i = 0; i < num_particles; i++)
@@ -107,13 +84,13 @@ int main(int argc, char *argv[]) {
             int x_increment = (int) ranged_random(0, 2);
             int y_increment = (int) ranged_random(0, 2);
 
-            //If a particle is on the right-most edge of the grid it can only move backwards or stay still
-
+            //out of bounds check
             if((particle_x == (grid_width - 1) && (x_increment - 1) > 0) || ((particle_x == 0) && (x_increment - 1) < 0))
             {
                 x_increment = 1;
             }
 
+            //out of bounds check
             if((particle_y == (grid_height - 1) && (y_increment - 1) > 0) || ((particle_y == 0) && (y_increment - 1) < 0))
             {
                 y_increment = 1;
