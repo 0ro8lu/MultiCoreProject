@@ -36,6 +36,13 @@ unsigned int ranged_random(unsigned int lower, unsigned int upper)
     return my_ret;
 }
 
+typedef struct Particle
+{
+    unsigned int x_pos;
+    unsigned int y_pos;
+    unsigned char crystalized;
+}Particle;
+
 int main(int argc, char *argv[]) {
 
     if(argc < 7 || argc > 7)
@@ -54,7 +61,16 @@ int main(int argc, char *argv[]) {
     ///TODO: Check that seed_x and seed_y are within bounds of the grid.
 
     unsigned char grid[grid_width * grid_height];
+    Particle particles[num_particles];
 
+    //Init particles with random position
+    for(int i = 0; i < num_particles; i++)
+    {
+        particles[i].x_pos = ranged_random(0, grid_width);
+        particles[i].y_pos = ranged_random(0, grid_height);
+        particles[i].crystalized = 0;
+    }
+particle_x + (particle_y * grid_width)
     srand(time(0));
 
     //I'm creating the grid on the stack for better performance in general: is the stack always in cache? need to research
@@ -65,43 +81,42 @@ int main(int argc, char *argv[]) {
     }
 
     // Main Loop
-    for(int i = 0; i < num_particles; i++)
+    for(int i = 0; i < num_iterations; i++)
     {
-        //1: spawno random particella
-        //2: muovo random finche' colpisce il seed o un'altra particella.
-        //3: repeat
-        unsigned int particle_x = ranged_random(0, grid_width);
-        unsigned int particle_y = ranged_random(0, grid_height);
-
-        if(num_iterations == 0)
+        for(int j = 0; j < num_particles; j++)
         {
-            break;
-        }
-
-        // While particle has not hit the seed or hit another crystallized particle keep on moving
-        while(not_collided(particle_x, particle_y, (unsigned char*) &grid))
-        {
-            int x_increment = (int) ranged_random(0, 2);
-            int y_increment = (int) ranged_random(0, 2);
-
-            //out of bounds check
-            if((particle_x == (grid_width - 1) && (x_increment - 1) > 0) || ((particle_x == 0) && (x_increment - 1) < 0))
+            if(particles[j].crystalized == 0)
             {
-                x_increment = 1;
+                unsigned int particle_x = (particles[j].x_pos);
+                unsigned int particle_y = (particles[j].y_pos);
+
+                if(not_collided(particle_x, particle_y, (unsigned char*) &grid))
+                {
+                    int x_increment = (int) ranged_random(0, 2);
+                    int y_increment = (int) ranged_random(0, 2);
+
+                    //out of bounds check
+                    if((particle_x == (grid_width - 1) && (x_increment - 1) > 0) || ((particle_x == 0) && (x_increment - 1) < 0))
+                    {
+                        x_increment = 1;
+                    }
+
+                    //out of bounds check
+                    if((particle_y == (grid_height - 1) && (y_increment - 1) > 0) || ((particle_y == 0) && (y_increment - 1) < 0))
+                    {
+                        y_increment = 1;
+                    }
+
+                    particles[j].x_pos = particle_x + (x_increment - 1);
+                    particles[j].y_pos = particle_y + (y_increment - 1);
+                }
+                else
+                {
+                    grid[particle_x + (particle_y * grid_width)]++;
+                    particles[j].crystalized = 1;
+                }
             }
-
-            //out of bounds check
-            if((particle_y == (grid_height - 1) && (y_increment - 1) > 0) || ((particle_y == 0) && (y_increment - 1) < 0))
-            {
-                y_increment = 1;
-            }
-
-            particle_x += (x_increment - 1);
-            particle_y += (y_increment - 1);
-
-            num_iterations--;
         }
-        grid[particle_x + (particle_y * grid_width)]++;
     }
 
     return 0;
